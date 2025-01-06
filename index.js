@@ -15,28 +15,56 @@ app.use(cors()); // Cors kullarini ac
 // Port numarasini belirtiyoruz
 const PORT = 3001;
 
-// Post istegi icin /login endpointini tanimliyoruz
-app.post('/login', (req, res) => {
+// Kullanıcıları geçici olarak saklamak için bir dizi (normalde bir veritabanı kullanılır)
+const users = [];
 
-    // Gelen istekteki kullanici adi ve sifreyi aliyoruz
+// Post istegi icin /login endpointini tanimliyoruz
+// Login endpointi
+app.post('/login', (req, res) => {
     const { username, password } = req.body;
 
-    // Terminalde bu bilgileri görmek için yazdırıyoruz
-    //console.log(`Kullanici Adi: ${username}, Şifre: ${password}`);
+    console.log(`Giriş denemesi: Kullanici Adi: ${username}, Şifre: ${password}`);
 
-     // Basit bir doğrulama işlemi yapıyoruz
-     if (username === 'Test' && password === '12345') {
-        console.log(`Giriş Başarili: Kullanici Adi: ${username}, ID: 1`);
-        res.status(200).json({ 
+    const user = users.find(user => user.username === username && user.password === password);
+
+    if (user) {
+        console.log(`Giriş Başarili: Kullanici Adi: ${username}, ID: ${user.id}`);
+        res.status(200).json({
             message: 'Giriş başarili!',
             user: {
-                id: 1,
-                name: 'Tolga Sarikaya',
+                id: user.id,
+                username: user.username
             }
         });
-     } else {
-        res.status(401).json({ message: 'Gecersiz giris bilgileri' });
-     }
+    } else {
+        console.log('Geçersiz giriş bilgileri.');
+        res.status(401).json({ message: 'Geçersiz giriş bilgileri!' });
+    }
+});
+
+// Kullanici kaydi icin '/register endpointi
+app.post('/register', (req, res) => {
+const { username, password } = req.body;
+
+// Gecersiz giris kontrolü
+if (!username || !password) {
+    return res.status(400).json({ message: 'Kullanici adi ve sifre gerekiyor!' });
+}
+// Kullanicinin zaten kayitli olup olmadigini kontrol et 
+const existingUser = users.find(user => user.name === username);
+if (existingUser) {
+    return res.status(409).json({ message: 'Bu kullanici adi zaten var!' });
+}
+const newUser = {
+    id: users.length + 1,
+    username,
+    password
+};
+
+users.push(newUser);
+
+console.log(`Yeni kullanici kaydedildi: ${JSON.stringify(newUser)}`);
+res.status(201).json({ message: 'Kullanici basariyla kaydedildi!', user: newUser });
 
 });
 

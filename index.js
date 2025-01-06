@@ -1,59 +1,59 @@
-// Express modülünü projeye dahil ediyoruz
+// We include the Express module in the project
 const express = require('express');
 
-// Body-parser ile gelen POST isteklerinin gövdesini (body) isleyebiliyoruz
+// We can process the body of incoming POST requests with body-parser.
 const bodyParser = require('body-parser');
 
-// Cors: Baska bir cihaz ve uygulamadan gelen isteklere izin vermek icin kullanilir
+// Cors: Used to allow requests from another device and application.
 const cors = require('cors');
 
-// Express uygulamasini olusturuyoruz
+// We are creating the Express application
 const app = express();
-app.use(bodyParser.json());  // JSON verilerini islemek icin body parser kullanilir
-app.use(cors()); // Cors kullarini ac
+app.use(bodyParser.json());  // Body parser is used to process JSON data.
+app.use(cors()); // Open the Cors servants
 
-// Port numarasini belirtiyoruz
+// We specify the port number
 const PORT = 3001;
 
-// Kullanıcıları geçici olarak saklamak için bir dizi (normalde bir veritabanı kullanılır)
+//An array to temporarily store users (normally a database is used)
 const users = [];
 
-// Post istegi icin /login endpointini tanimliyoruz
-// Login endpointi
+// We define the /login endpoint for the post request.
+// Login endpoint
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
 
-    console.log(`Giriş denemesi: Kullanici Adi: ${username}, Şifre: ${password}`);
+    console.log(`Login attempt: username: ${username}, password: ${password}`);
 
     const user = users.find(user => user.username === username && user.password === password);
 
     if (user) {
-        console.log(`Giriş Başarili: Kullanici Adi: ${username}, ID: ${user.id}`);
+        console.log(`Login attempt: username: ${username}, ID: ${user.id}`);
         res.status(200).json({
-            message: 'Giriş başarili!',
+            message: 'Login attempt!',
             user: {
                 id: user.id,
                 username: user.username
             }
         });
     } else {
-        console.log('Geçersiz giriş bilgileri.');
-        res.status(401).json({ message: 'Geçersiz giriş bilgileri!' });
+        console.log('Invalid login information.');
+        res.status(401).json({ message: 'Invalid login information' });
     }
 });
 
-// Kullanici kaydi icin '/register endpointi
+// '/register endpoint for user registration
 app.post('/register', (req, res) => {
 const { username, password } = req.body;
 
-// Gecersiz giris kontrolü
+// Invalid access control
 if (!username || !password) {
-    return res.status(400).json({ message: 'Kullanici adi ve sifre gerekiyor!' });
+    return res.status(400).json({ message: 'Username and password required!' });
 }
-// Kullanicinin zaten kayitli olup olmadigini kontrol et 
+// Check if user is already registered 
 const existingUser = users.find(user => user.name === username);
 if (existingUser) {
-    return res.status(409).json({ message: 'Bu kullanici adi zaten var!' });
+    return res.status(409).json({ message: 'This username already exists!!' });
 }
 const newUser = {
     id: users.length + 1,
@@ -63,12 +63,12 @@ const newUser = {
 
 users.push(newUser);
 
-console.log(`Yeni kullanici kaydedildi: ${JSON.stringify(newUser)}`);
-res.status(201).json({ message: 'Kullanici basariyla kaydedildi!', user: newUser });
+console.log(`New user registered: ${JSON.stringify(newUser)}`);
+res.status(201).json({ message: 'User successfully registered!', user: newUser });
 
 });
 
-// Server'ı başlatıyoruz ve belirttiğimiz port numarasında dinliyoruz
+// We start the server and listen on the port number we specified
 app.listen(PORT, () => {
-    console.log(`Server ${PORT} portunda çalişiyor...`);
+    console.log(`Running on ${PORT} server port...`);
 });
